@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
 
-"""Tests for the unified claim (unified.py): six statements (five
+"""Tests for the unified claim (unified.py): seven statements (six
 verdicts), no headline; the membrane verdict is FAIL with the measured
 numbers; the odd variant FAILS on its primary setup but PASSES for
-binary/distinct; the ramp carries no verdict."""
+binary/distinct; the ramp carries no verdict; the harmonics test
+passes -- the failing corner is incoherent, not hiding a harmonic."""
 
 import math
 
@@ -19,12 +20,12 @@ def result():
 
 
 def test_unified_structure(result):
-    assert result["n_claims"] == 5
-    assert result["n_passed"] == 3
+    assert result["n_claims"] == 6
+    assert result["n_passed"] == 4
     assert result["overall_pass"] is False
     assert result["headline_allowed"] is False
     assert HEADLINE_ALLOWED is False
-    assert [c["id"] for c in result["claims"]] == ["a", "b", "c", "d", "e", "f"]
+    assert [c["id"] for c in result["claims"]] == ["a", "b", "c", "d", "e", "f", "g"]
 
 
 def test_law_claims_pass(result):
@@ -124,3 +125,26 @@ def test_ramp_carries_no_verdict_and_reports_shape(result):
     binary = claim["setups"]["binary_identical"]["shape"]
     assert binary["drive_q"]["power_fraction_at_ramp"] > 0.99
     assert binary["drive_q"]["sine_r2_at_ramp"] > 0.999
+
+
+def test_harmonics_claim_passes_failing_corner_is_incoherent(result):
+    # Claim (g): the test discriminates. The failing corner
+    # (identical, linear) is INCOHERENT -- no harmonic dominates:
+    # peak bin 2 carries 7.3%, top-3 16.8%, 84% of the power sits
+    # above the 3rd harmonic, spread out. The binary/distinct
+    # control is a single sine (p1 = 1.0000) and the shuffled
+    # control is incoherent.
+    claim = {c["id"]: c for c in result["claims"]}["g"]
+    assert claim["passed"] is True
+    assert claim["answer"] == "incoherent"
+    flow = claim["failing_corner"]["flow"]
+    assert flow["classification"]["verdict"] == "incoherent"
+    spec = flow["spectrum"]
+    assert spec["p1"] < 0.10
+    assert spec["p2_plus_p3"] < 0.20
+    assert spec["peak_fraction"] < 0.10
+    assert spec["p_top3"] < 0.30
+    assert spec["p_high"] > 0.80
+    assert claim["control_single_sine_p1"] > 0.99
+    assert claim["shuffled_verdict"] == "incoherent"
+    assert all(claim["checks"].values())

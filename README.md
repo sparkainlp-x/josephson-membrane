@@ -8,7 +8,7 @@ measured against the membrane-arena-3x3 lattice's response to a phase
 difference. The laws are inputs, not discoveries. The central question
 is whether the lattice follows the Josephson sine law. It does not.
 
-## Results (v0.2.0, measured)
+## Results (v0.2.1, measured)
 
 | Claim | Result |
 |---|---|
@@ -18,8 +18,9 @@ is whether the lattice follows the Josephson sine law. It does not.
 | (d) Membrane phase response vs sine law | **FAIL** — R² = −32.75, max\|residual\|/\|A\| = 12.51, best-fit phase π/2 (a cosine) |
 | (e) Odd-function variant vs sine law | **FAIL** on the primary (identical, linear): R² = 0.037, δ = 0 — but **PASS** for binary/distinct (R² = 0.9999, δ = −0.008); binary drive is an exact sine (R² = 1.0000) |
 | (f) Phase-ramp analogue (AC) | measured, no verdict — v0.1.0 flow is a notch train; binary variant drive is a pure sine at the ramp rate (R² = 1.0000) |
+| (g) Harmonics vs incoherence in the failing corner | **PASS** — the failing corner is INCOHERENT, not hiding a dominant harmonic: peak bin 7.3% of power, top-3 bins 16.8%, 84% of power above the 3rd harmonic; binary/distinct control is a single sine (p1 = 1.0000) |
 
-3 of 5 verdicts pass (a–c). `headline_allowed` is always False.
+4 of 6 verdicts pass (a–c, g). `headline_allowed` is always False.
 
 ## The FAIL in one paragraph
 
@@ -56,10 +57,25 @@ oscillation; the binary variant drive is a pure sine at the ramp
 rate. See REPORT.md §4–§5. The variant is a designed rule, not a
 discovered law — no physical junction is implied.
 
+## The v0.2.1 follow-up in one paragraph
+
+Dr. Sinem Salva Ersoy asked the next question: in the failing
+corner, is the response hiding higher harmonics, or are the phases
+just incoherent? A single sine fit cannot tell those apart, so the
+test is a Fourier decomposition of the drive and flow on a dense
+256-point grid, with a shuffled-phase control setting the noise
+floor. The answer is incoherent: the failing corner's flow has no
+dominant harmonic — peak bin 7.3% of power, top-3 bins 16.8%, 84%
+of the power spread above the 3rd harmonic. The drive's strongest
+bins are high (24th, 30th, 29th), but each carries only ~5% of the
+power. The binary/distinct control confirms the test works: there
+the flow is a single sine (p1 = 1.0000). See REPORT.md §7. A Fourier
+peak is a property of the sampled curve, not of a device.
+
 ## Run it
 
 ```bash
-python3 -m pytest -q            # 49 tests
+python3 -m pytest -q            # 66 tests
 PYTHONPATH=src python3 -m josephson_membrane.unified   # full claim, JSON
 ```
 
@@ -76,7 +92,9 @@ reimplemented. If that tree is absent the module raises ImportError.
   lattice, sine fit, pre-registered verdict rule.
 - `src/josephson_membrane/odd_phase.py` — odd-function variant
   (claim e) and phase ramp (claim f).
-- `src/josephson_membrane/unified.py` — the six statements.
+- `src/josephson_membrane/harmonics.py` — Fourier harmonics test
+  (claim g) with shuffled-phase control.
+- `src/josephson_membrane/unified.py` — the seven statements.
 - `REPORT.md` — full measured numbers and honest limits.
 
 ## Credit

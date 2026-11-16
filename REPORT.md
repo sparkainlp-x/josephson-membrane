@@ -1,4 +1,4 @@
-# REPORT — Josephson–Membrane v0.2.0
+# REPORT — Josephson–Membrane v0.2.1
 
 **SYNTHETIC classical emulation only. No claim about physical reality.
 No headline claim is emitted (`headline_allowed` is always False).**
@@ -13,8 +13,9 @@ No headline claim is emitted (`headline_allowed` is always False).**
 | (d) Membrane phase response vs sine law | **FAIL** | R² = −32.75; max\|residual\|/\|A\| = 12.51; best-fit phase δ = π/2 |
 | (e) Odd-function variant vs sine law | **FAIL** (primary) | R² = 0.037; max\|residual\|/\|A\| = 17.86; δ = 0 — but binary/distinct PASSES (R² = 0.9999, δ = −0.008) |
 | (f) Phase-ramp analogue (AC) | measured, no verdict | v0.1.0 flow is a notch train at the ramp rate; binary variant drive is a pure sine at the ramp rate (R² = 1.0000) |
+| (g) Harmonics vs incoherence in the failing corner | **PASS** | failing corner is INCOHERENT: peak bin 7.3% of power, top-3 bins 16.8%, 84% of power above the 3rd harmonic; binary/distinct control is a single sine (p1 = 1.0000) |
 
-Overall: 3 of 5 verdicts pass (a–c). The failures are the point of
+Overall: 4 of 6 verdicts pass (a–c, g). The failures are the point of
 the package: the lattice does not follow the Josephson sine law under
 its own interaction rule, and the measurement says exactly how it
 differs — and exactly which designed change does produce a sine.
@@ -409,7 +410,92 @@ What the time series actually do:
   (binary generator, distinct cells) and fails where it predicts
   (linear generator, identical cells).
 
-## 7. Honest limits
+## 7. The harmonics test (claim g): the failing corner is incoherent
+
+The question came from Dr. Sinem Salva Ersoy, answering Jean's
+comment on her Josephson post: in the failing corner -- the
+identical/linear regime, where the variant sine fit gives R² = 0.037
+-- is the response hiding higher harmonics, or are the phases there
+just incoherent? A single sine fit cannot tell those apart, so the
+test is a Fourier decomposition of the drive/response curve, densely
+sampled (256 points over φ ∈ [0, 2π), mean over seeds 0..4) in all
+four setups, plus the v0.1.0 flow and fidelity as controls.
+
+### Pre-registered verdict rule
+
+Recorded in `harmonics.py` before measuring. Let p1, p2, p3 be the
+power fractions at harmonics 1, 2, 3 (demeaned curve, bins 1..127 of
+a 256-point rfft), p_nonfund = 1 − p1, p_top3 the sum of the three
+largest single-bin fractions, peak the largest single-bin fraction.
+The shuffled control is the same mean curve with its samples
+shuffled (fixed seed 12345).
+
+- "harmonics" iff p_top3 ≥ 0.50 AND p_nonfund ≥ 0.20 AND
+  p_top3 ≥ 3.0 × (shuffled p_top3).
+- "incoherent" iff peak ≤ 0.10 AND p_top3 ≤ 0.30.
+- "neither" otherwise (a single-sine-dominated curve lands here).
+
+The rule keys on CONCENTRATION, not on low harmonics alone: the
+linear generator's drive is analytically a 31-frequency Fourier
+series, so harmonic power can sit at any k ≤ 31 (the ramp experiment
+already hinted at this: the linear variant drive's ramp-spectrum
+peaks at the 24th harmonic, the flow's at the 30th). The p2+p3
+fraction is reported as a diagnostic, but the verdict does not rest
+on it alone. Claim (g) is a claim about the TEST's discriminating
+power: it passes iff (i) the failing corner gets a definite verdict,
+(ii) the binary/distinct control is "neither" with p1 ≥ 0.90, and
+(iii) the shuffled control is "incoherent".
+
+### Measured result — the answer is incoherent
+
+| Setup | Curve | Verdict | p1 | p2 | p3 | p_high (≥4) | p_top3 | Top bins | Peak |
+|---|---|---|---|---|---|---|---|---|---|
+| linear/identical | flow | **incoherent** | 0.048 | 0.073 | 0.040 | 0.840 | 0.168 | 2, 1, 7 | 0.073 |
+| linear/identical | drive | **incoherent** | 0.027 | 0.042 | 0.026 | 0.906 | 0.132 | 24, 30, 29 | 0.046 |
+| linear/distinct | flow | **incoherent** | 0.024 | 0.037 | 0.022 | 0.917 | 0.141 | 18, 24, 30 | 0.051 |
+| binary/identical | flow | neither | 0.922 | 0.075 | 0.002 | 0.000 | 1.000 | 1, 2, 3 | 0.922 |
+| binary/distinct | flow | neither | 1.000 | 0.000 | 0.000 | 0.000 | 1.000 | 1, 2, 3 | 1.000 |
+| binary/identical | drive | neither | 1.000 | 0.000 | 0.000 | 0.000 | 1.000 | 1 | 1.000 |
+| binary/distinct | drive | neither | 1.000 | 0.000 | 0.000 | 0.000 | 1.000 | 1 | 1.000 |
+
+Shuffled control (failing corner flow): peak 0.033, p_top3 0.088 —
+"incoherent", as required. All three claim-(g) checks pass.
+
+What this means: the failing corner is NOT hiding a dominant
+harmonic. The drive's strongest bins are high (24th, 30th, 29th --
+the same high harmonics the ramp experiment hinted at), but each
+carries only ~5% of the power, and the 2nd+3rd together are only
+11% of the flow's power. The power is spread across the
+high-harmonic band with no tone dominant: the phases are incoherent
+in exactly the sense the rule defines. The binary/distinct control
+confirms the test works -- there the response is a single sine,
+p1 = 1.0000, exactly as its R² = 0.9999 requires -- and the
+binary/identical near-miss shows up in the spectrum as a single
+sine plus a small 2nd harmonic (p2 = 0.075), the distance notch in
+frequency space.
+
+Two things "incoherent" does NOT mean here, and the distinction
+matters. First, the curve is deterministic and periodic -- its power
+is by construction at integer harmonics; "incoherent" means no small
+set of harmonics carries it, not that it is random noise (the
+shuffled control has the same spread but even less structure: the
+measured curve is a pure sine series, sine-part power fraction
+1.000, because Q(φ) is odd). Second, it does not mean the response
+is featureless: 84% of the power sits above the 3rd harmonic, so a
+single-sine fit was never going to work -- the failure in (e) is a
+broadband failure, not a missing 2nd harmonic.
+
+### The v0.1.0 control: exactly even
+
+The v0.1.0 flow (linear/identical) has sine-part power fraction
+0.0000 -- exactly even, as the structural argument in §3 requires
+-- and its spectrum sits on the odd harmonics 1, 3, 5 (p1 = 0.128,
+p_top3 = 0.308), the shape of a notch train, not a cosine. The
+fidelity shows the same spectrum (sine fraction 0.0000, top bins
+1, 3, 5). The cosine fit of claim (d) was the best single sinusoid,
+but it was never the shape of the curve.
+
+## 8. Honest limits
 
 1. **Classical emulation.** Everything here is NumPy on classical
    hardware. The lattice is NOT a superconductor; no Cooper pairs,
@@ -456,12 +542,21 @@ What the time series actually do:
    bookkeeping quantity (the imaginary part of an overlap between
    two states in different frames), not a current. No physical
    junction is implied.
+9. **A Fourier peak is a property of the sampled curve, not of a
+   device.** Claim (g)'s verdicts describe the model's response
+   curve on a 256-point grid. A peak at the 24th harmonic is a peak
+   in that curve, not evidence of a physical 24th harmonic in a
+   real junction. "Incoherent" means no dominant harmonic under
+   the pre-registered rule -- no bin above 10%, top-3 below 30% --
+   not random noise: the failing-corner curve is deterministic and
+   periodic, and its sine-part power fraction is 1.000 because the
+   drive is odd.
 
-## 8. Reproduction
+## 9. Reproduction
 
 ```bash
 cd ~/workspace/josephson-membrane
-python3 -m pytest -q            # 49 tests, ~45 s
+python3 -m pytest -q            # 66 tests, ~60 s
 PYTHONPATH=src python3 -m josephson_membrane.unified   # full claim as JSON
 ```
 
@@ -470,3 +565,5 @@ Lattice provenance is recorded by the measurement itself:
 (`rounds-on-main`) and HEAD commit (`e7d8fea70cbc0429ad9acb1cea8d55e989cfca70`).
 Seeds 0..4, 64 phase points, identical and distinct cells, linear and
 binary generators. All numbers in this report come from that run.
+The harmonics test (claim g) uses a denser 256-point grid over the
+same seeds and setups.

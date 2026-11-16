@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.2.1 — 2026-11-16
+
+- `harmonics.py` (new): Fourier harmonics test, claim (g). The
+  question came from Dr. Sinem Salva Ersoy, answering Jean's comment
+  on her Josephson post: in the failing corner (identical cells,
+  linear generator, R² = 0.037), is the response hiding higher
+  harmonics, or are the phases just incoherent? The test decomposes
+  the variant drive and flow on a dense 256-point grid (mean over
+  seeds 0..4), with a shuffled-phase control setting the noise
+  floor. Pre-registered rule, fixed before measuring: "harmonics"
+  iff the top-3 harmonic bins carry ≥ 50% of the power with ≥ 20%
+  non-fundamental and ≥ 3× the shuffled top-3; "incoherent" iff no
+  bin exceeds 10% and top-3 ≤ 30%; "neither" otherwise. The rule
+  keys on concentration, not on low harmonics alone, because the
+  linear drive is analytically a 31-frequency series. Measured
+  answer: INCOHERENT. The failing-corner flow has peak bin 7.3%,
+  top-3 16.8%, 84% of power above the 3rd harmonic; the drive's
+  strongest bins are high (24th, 30th, 29th) but each carries only
+  ~5%. The binary/distinct control is a single sine (p1 = 1.0000)
+  and the shuffled control is incoherent, so claim (g) PASSES: the
+  test discriminates. The v0.1.0 control is exactly even
+  (sine-part power fraction 0.0000; spectrum on odd harmonics 1, 3,
+  5). 66/66 tests. Overall 4 of 6 verdicts pass (a–c, g).
+  headline_allowed stays False.
+- Version bumped to 0.2.1 in VERSION, pyproject.toml,
+  `__init__.__version__` (both were still at 0.1.0), CITATION.cff
+  and .zenodo.json. No new DOI invented; the v0.2.1 version DOI
+  comes from Jean's Zenodo release.
+
 ## 0.2.0 — 2026-11-15
 
 - Independent review of v0.1.0 (see REPORT.md §3): all four claims

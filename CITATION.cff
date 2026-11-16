@@ -7,8 +7,8 @@ authors:
     given-names: "Jean-François"
     orcid: "https://orcid.org/0009-0000-9778-5374"
     affiliation: "Spark AI NLP, Fredericton, New Brunswick, Canada"
-version: 0.2.0
-date-released: "2026-11-15"
+version: 0.2.1
+date-released: "2026-11-16"
 license: AGPL-3.0-only
 abstract: >-
   SYNTHETIC. Standard-library Python plus NumPy: the Josephson laws
@@ -26,10 +26,14 @@ abstract: >-
   exact sine (R^2 = 1.0000) and its binary/distinct flow PASSES the
   rule (R^2 = 0.9999, delta = -0.008). A phase-ramp analogue is
   measured without a forced verdict: the v0.1.0 flow is a notch train,
-  the binary variant drive a pure sine at the ramp rate. Six
-  statements: three pass (the laws), two fail, one measured without a
-  verdict. The variant is a designed rule, not a discovered law.
-  No headline claim is emitted.
+  the binary variant drive a pure sine at the ramp rate. Seven statements: four pass (the laws, plus the harmonics test
+  below), two fail, one measured without a verdict. The variant is a
+  designed rule, not a discovered law. v0.2.1 adds a Fourier
+  harmonics test of the failing corner (identical cells, linear
+  generator): the variant flow is INCOHERENT, not hiding a dominant
+  harmonic -- peak bin 7.3% of power, top-3 bins 16.8%, 84% of the
+  power spread above the 3rd harmonic; the binary/distinct control
+  is a single sine (p1 = 1.0000). No headline claim is emitted.
 keywords:
   - "josephson-effect"
   - "josephson-junction"

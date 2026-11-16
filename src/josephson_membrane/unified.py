@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
 
-"""Unified claim: six statements, measured, no headline.
+"""Unified claim: seven statements, measured, no headline.
 
 (a) DC law reproduces the cardinal table exactly: I_s = 0 at
     delta_phi = 0, pi, 2*pi; +I_c at pi/2; -I_c at 3*pi/2.
@@ -24,6 +24,13 @@
     its shape reported -- FFT power at the ramp frequency and a sine
     fit at the ramp rate. No verdict is forced for (f); "passed" is
     None.
+(g) Harmonics vs incoherence in the failing corner (harmonics.py):
+    the variant flow in the identical/linear regime, Fourier-
+    decomposed over 256 points, is classified "harmonics" /
+    "incoherent" / "neither" by the pre-registered rule. The claim
+    is about the TEST's discriminating power: it passes iff the
+    failing corner gets a definite verdict, the binary/distinct
+    control is a single sine, and the shuffled control is incoherent.
 
 These are measurements on synthetic classical code plus exact
 evaluations of established laws. They are not a proof about physical
@@ -35,6 +42,7 @@ from __future__ import annotations
 import json
 import math
 
+from .harmonics import classify, run_harmonics_experiment
 from .josephson import (
     FLUX_QUANTUM_WB,
     JOSEPHSON_CONSTANT_GHZ_PER_MV,
@@ -227,8 +235,67 @@ def claim_phase_ramp() -> dict:
     }
 
 
+def claim_harmonics() -> dict:
+    """(g) Harmonics vs incoherence in the failing corner.
+
+    Pre-registered in harmonics.py before measuring. The claim is
+    about the TEST's discriminating power: it passes iff (i) the
+    failing corner (identical cells, linear generator) gets a
+    definite verdict, "harmonics" or "incoherent"; (ii) the
+    binary/distinct control flow is "neither" with p1 >= 0.90 (a
+    single sine, as its R^2 = 0.9999 requires); and (iii) the
+    shuffled control on the failing corner is "incoherent". If the
+    failing corner is "neither", (g) FAILS: the test cannot tell
+    them apart there.
+    """
+    exp = run_harmonics_experiment()
+    failing = exp["setups"]["linear_identical"]["flow"]
+    control = exp["setups"]["binary_distinct"]["flow"]
+    shuffled = failing["shuffled_spectrum"]
+    shuffled_verdict = classify(shuffled, shuffled)["verdict"]
+    checks = {
+        "failing_corner_definite": failing["classification"]["verdict"]
+        in ("harmonics", "incoherent"),
+        "control_single_sine": (
+            control["classification"]["verdict"] == "neither"
+            and control["spectrum"]["p1"] >= 0.90
+        ),
+        "shuffled_incoherent": shuffled_verdict == "incoherent",
+    }
+    passed = all(checks.values())
+    return {
+        "id": "g",
+        "name": "Harmonics vs incoherence in the failing corner",
+        "question": (
+            "In the failing corner (identical/linear, R^2 = 0.037), is "
+            "the response hiding higher harmonics, or are the phases "
+            "just incoherent? A single sine fit cannot tell those apart."
+        ),
+        "answer": failing["classification"]["verdict"],
+        "failing_corner": {
+            "setup": "identical cells, linear generator, mean over seeds 0..4",
+            "flow": failing,
+            "drive": exp["setups"]["linear_identical"]["drive"],
+        },
+        "supporting": {
+            key: exp["setups"][key]
+            for key in (
+                "linear_distinct",
+                "binary_identical",
+                "binary_distinct",
+            )
+        },
+        "v010_control": exp["v010_control"],
+        "control_single_sine_p1": control["spectrum"]["p1"],
+        "shuffled_verdict": shuffled_verdict,
+        "checks": checks,
+        "verdict_rule": exp["verdict_rule"],
+        "passed": bool(passed),
+    }
+
+
 def unified_claim() -> dict:
-    """Run all six statements; return measured numbers, no headline."""
+    """Run all seven statements; return measured numbers, no headline."""
     claims = [
         claim_dc_law(),
         claim_ac_frequency(),
@@ -236,6 +303,7 @@ def unified_claim() -> dict:
         claim_membrane_phase(),
         claim_odd_phase(),
         claim_phase_ramp(),
+        claim_harmonics(),
     ]
     verdicts = [c for c in claims if c["passed"] is not None]
     return {
