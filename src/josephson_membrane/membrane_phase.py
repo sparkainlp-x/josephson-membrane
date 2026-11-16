@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
+
 """Membrane phase response: does the 3x3 lattice follow the Josephson sine law?
 
 PRE-REGISTERED VERDICT RULE (fixed before the measurement run below):

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
+
 """Josephson laws: DC current, AC frequency, SQUID flux modulation.
 
 Established physics. Brian Josephson predicted the DC and AC effects

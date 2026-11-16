@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
+
 """Odd-function variant (claim (e)) and phase-ramp analogue (claim (f)).
 
 The v0.1.0 result was a structural FAIL: the membrane flow depends on

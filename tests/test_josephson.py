@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
+
 """Tests for the Josephson laws (josephson.py): exact evaluations of
 established physics. The laws are inputs, so these tests check that the
 implementation reproduces the tabulated values exactly."""

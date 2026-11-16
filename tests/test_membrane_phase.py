@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
+
 """Tests for the membrane phase response (membrane_phase.py).
 
 Two kinds of tests: (1) mechanics -- the phase unitary, the pairwise

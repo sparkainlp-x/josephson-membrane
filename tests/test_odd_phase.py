@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
+
 """Tests for the odd-function variant (odd_phase.py) and the ramp.
 
 Three kinds of tests: (1) the quantities -- the two-sided imaginary

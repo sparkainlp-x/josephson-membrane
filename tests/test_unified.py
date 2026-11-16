@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
+
 """Tests for the unified claim (unified.py): six statements (five
 verdicts), no headline; the membrane verdict is FAIL with the measured
 numbers; the odd variant FAILS on its primary setup but PASSES for

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
+
 """Josephson-membrane: the Josephson laws measured against the 3x3 membrane lattice.
 
 SYNTHETIC classical emulation only. No claim about physical reality.
