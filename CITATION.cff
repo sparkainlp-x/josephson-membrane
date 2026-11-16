@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+title: "Josephson-Membrane: Josephson laws against the membrane lattice phase response (SYNTHETIC classical emulation)"
+type: software
+authors:
+  - family-names: "Brisson"
+    given-names: "Jean-François"
+    orcid: "https://orcid.org/0009-0000-9778-5374"
+    affiliation: "Spark AI NLP, Fredericton, New Brunswick, Canada"
+version: 0.2.0
+date-released: "2026-11-15"
+license: AGPL-3.0-only
+abstract: >-
+  SYNTHETIC. Standard-library Python plus NumPy: the Josephson laws
+  (DC current, AC frequency, SQUID flux modulation) measured against
+  the membrane-arena-3x3 lattice phase response. The laws reproduce
+  exactly (DC cardinal table; 2e/h = 483.597848 GHz/mV, CODATA K_J to
+  machine precision; SQUID cardinals). The central question -- does the
+  lattice follow the Josephson sine law -- is answered NO by a
+  pre-registered rule: R^2 = -32.75, max|residual|/|A| = 12.51, and
+  the best-fit phase pi/2 (a cosine), not the Josephson delta = 0.
+  For identical cells the membrane flow is even in delta_phi while the
+  Josephson current is odd. v0.2.0 adds an odd-function variant
+  (drive Im Tr(rho_A U rho_B)): it FAILS on the primary setup
+  (R^2 = 0.037, delta = 0), but its binary-generator drive is an
+  exact sine (R^2 = 1.0000) and its binary/distinct flow PASSES the
+  rule (R^2 = 0.9999, delta = -0.008). A phase-ramp analogue is
+  measured without a forced verdict: the v0.1.0 flow is a notch train,
+  the binary variant drive a pure sine at the ramp rate. Six
+  statements: three pass (the laws), two fail, one measured without a
+  verdict. The variant is a designed rule, not a discovered law.
+  No headline claim is emitted.
+keywords:
+  - "josephson-effect"
+  - "josephson-junction"
+  - "squid"
+  - "superconducting-qubits"
+  - "phase-difference"
+  - "supercurrent"
+  - "flux-quantum"
+  - "membrane"
+  - "synthetic"
+  - "python"

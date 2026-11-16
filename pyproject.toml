@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "josephson-membrane"
+version = "0.1.0"
+description = "Josephson laws (DC, AC, SQUID) measured against the membrane-arena-3x3 lattice phase response (stdlib + NumPy, synthetic only)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "AGPL-3.0-only"}
+authors = [{name = "Jean-François Brisson"}]
+dependencies = ["numpy>=1.24"]
+
+[project.scripts]
+josephson-membrane = "josephson_membrane.unified:_cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
