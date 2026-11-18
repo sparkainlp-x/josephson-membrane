@@ -8,7 +8,7 @@ measured against the membrane-arena-3x3 lattice's response to a phase
 difference. The laws are inputs, not discoveries. The central question
 is whether the lattice follows the Josephson sine law. It does not.
 
-## Results (v0.2.1, measured)
+## Results (v0.3.0, measured)
 
 | Claim | Result |
 |---|---|
@@ -19,8 +19,12 @@ is whether the lattice follows the Josephson sine law. It does not.
 | (e) Odd-function variant vs sine law | **FAIL** on the primary (identical, linear): R² = 0.037, δ = 0 — but **PASS** for binary/distinct (R² = 0.9999, δ = −0.008); binary drive is an exact sine (R² = 1.0000) |
 | (f) Phase-ramp analogue (AC) | measured, no verdict — v0.1.0 flow is a notch train; binary variant drive is a pure sine at the ramp rate (R² = 1.0000) |
 | (g) Harmonics vs incoherence in the failing corner | **PASS** — the failing corner is INCOHERENT, not hiding a dominant harmonic: peak bin 7.3% of power, top-3 bins 16.8%, 84% of power above the 3rd harmonic; binary/distinct control is a single sine (p1 = 1.0000) |
+| (h) Tunneling: transmission vs barrier height | **PASS** — strictly decreasing in height; T(0.99)/T(0) = 1.12e-04 |
+| (i) Tunneling: transmission vs barrier width | **PASS** — exponential in width: log-linear slope −1.353 per link, R² = 0.999996 |
+| (j) Tunneling: graded, not a step | **PASS** — T(0.5)/T(0) = 0.260, inside (0.20, 0.80) |
+| (k) Tunneling: wide-barrier suppression | **PASS** — T(0.99, w=3)/T(0) = 1.21e-06 |
 
-4 of 6 verdicts pass (a–c, g). `headline_allowed` is always False.
+8 of 10 verdicts pass (a–c, g–k). `headline_allowed` is always False.
 
 ## The FAIL in one paragraph
 
@@ -72,10 +76,31 @@ power. The binary/distinct control confirms the test works: there
 the flow is a single sine (p1 = 1.0000). See REPORT.md §7. A Fourier
 peak is a property of the sampled curve, not of a device.
 
+## The v0.3.0 follow-up in one paragraph
+
+The remaining unbuilt seed was transmission across a barrier — no
+transmission-vs-barrier measurement existed anywhere in the work.
+The 3×3 lattice cannot host one (its neighbour graph is dense, so a
+barrier column would be bypassed), so the measurement runs on a
+4-cell chain of the real lattice: same states, Hamiltonians, stages
+and pairwise interaction formula, only the neighbour graph is a
+chain and the coupling is per-link. A phase-twisted source injects
+a disturbance; a control run without the injection isolates what
+reaches the detector. The answer is tunneling-like in shape:
+transmission falls strictly with barrier height (T(0.99)/T(0) =
+1.12e-04) and exponentially with barrier width (log-linear slope
+−1.353 per link, R² = 0.999996), graded not a step (T(0.5)/T(0) =
+0.260), and the suppression holds for the widest barrier
+(T(0.99, w=3)/T(0) = 1.21e-06). The measured law is T = T(0)·(1−h)^w
+to within 12% — each barrier link contributes one factor (1−h) —
+which follows directly from the drive being linear in the per-link
+coupling. It is a property of the designed rule, not a discovery,
+and not the quantum tunneling law. See REPORT.md §8.
+
 ## Run it
 
 ```bash
-python3 -m pytest -q            # 66 tests
+python3 -m pytest -q            # 82 tests
 PYTHONPATH=src python3 -m josephson_membrane.unified   # full claim, JSON
 ```
 
@@ -94,7 +119,9 @@ reimplemented. If that tree is absent the module raises ImportError.
   (claim e) and phase ramp (claim f).
 - `src/josephson_membrane/harmonics.py` — Fourier harmonics test
   (claim g) with shuffled-phase control.
-- `src/josephson_membrane/unified.py` — the seven statements.
+- `src/josephson_membrane/tunneling.py` — transmission across a
+  barrier in a 4-cell chain of the real lattice (claims h–k).
+- `src/josephson_membrane/unified.py` — the eleven statements.
 - `REPORT.md` — full measured numbers and honest limits.
 
 ## Credit

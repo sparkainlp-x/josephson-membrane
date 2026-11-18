@@ -1,4 +1,4 @@
-# REPORT — Josephson–Membrane v0.2.1
+# REPORT — Josephson–Membrane v0.3.0
 
 **SYNTHETIC classical emulation only. No claim about physical reality.
 No headline claim is emitted (`headline_allowed` is always False).**
@@ -14,8 +14,12 @@ No headline claim is emitted (`headline_allowed` is always False).**
 | (e) Odd-function variant vs sine law | **FAIL** (primary) | R² = 0.037; max\|residual\|/\|A\| = 17.86; δ = 0 — but binary/distinct PASSES (R² = 0.9999, δ = −0.008) |
 | (f) Phase-ramp analogue (AC) | measured, no verdict | v0.1.0 flow is a notch train at the ramp rate; binary variant drive is a pure sine at the ramp rate (R² = 1.0000) |
 | (g) Harmonics vs incoherence in the failing corner | **PASS** | failing corner is INCOHERENT: peak bin 7.3% of power, top-3 bins 16.8%, 84% of power above the 3rd harmonic; binary/distinct control is a single sine (p1 = 1.0000) |
+| (h) Tunneling: transmission vs barrier height | **PASS** | strictly decreasing in height; T(0.99)/T(0) = 1.12e-04 (max 0.20) |
+| (i) Tunneling: transmission vs barrier width | **PASS** | log-linear slope −1.353 per link (max −0.10), R² = 0.999996 (min 0.90) |
+| (j) Tunneling: graded, not a step | **PASS** | T(0.5)/T(0) = 0.260, inside (0.20, 0.80) |
+| (k) Tunneling: wide-barrier suppression | **PASS** | T(0.99, w=3)/T(0) = 1.21e-06 (max 0.20) |
 
-Overall: 4 of 6 verdicts pass (a–c, g). The failures are the point of
+Overall: 8 of 10 verdicts pass (a–c, g–k). The failures are the point of
 the package: the lattice does not follow the Josephson sine law under
 its own interaction rule, and the measurement says exactly how it
 differs — and exactly which designed change does produce a sine.
@@ -495,7 +499,116 @@ fidelity shows the same spectrum (sine fraction 0.0000, top bins
 1, 3, 5). The cosine fit of claim (d) was the best single sinusoid,
 but it was never the shape of the curve.
 
-## 8. Honest limits
+## 8. The tunneling measurement (claims h–k): transmission falls exponentially with barrier width
+
+### Why a chain, and why coupling 0.10
+
+The 3x3 lattice cannot host a barrier: a cell's neighbours are its
+whole row and column, so every pair is directly connected or shares
+a neighbour, and a barrier column would be bypassed by the direct
+links around it. The experiment therefore runs on a 1-D chain of 4
+cells taken from the real lattice (states, Hamiltonians, config and
+all evolution stages are the lattice's own; the interaction term is
+the lattice's own pairwise formula; only the neighbour graph is a
+chain, and the coupling is per-link so a barrier can be a set of
+consecutive suppressed links). Two apparatus choices were fixed in
+the pilot phase, before the measurement run, because without them
+nothing is measurable at all: coupling 0.10 (the top of the
+lattice's own validated range) instead of the 0.02 default — at the
+default the per-link attenuation is ~200x and the signal is below
+the numerical floor by the detector — and a 4-cell chain, because
+each hop attenuates ~50x at coupling 0.10. Every claim is a ratio
+or a shape, so no threshold depends on either choice. The pilot also
+showed the floor: detector deviations saturate at ~1e-11 when the
+true signal falls below it, so the widest-barrier point below is
+reported as an upper bound.
+
+### Method
+
+Chain of 4 cells (source 0, detector 3), 100 steps of dt = 0.05,
+seeds 0..4. The barrier is WIDTH consecutive centred links whose
+coupling is scaled by (1 − height). At t = 0 the source is rotated
+by the linear phase unitary U(π/2); a control run with the same seed
+and settings but no injection isolates the signal. Transmission
+T = max_t ||ρ_detector(t) − ρ_detector_control(t)||_F / D_inj,
+where D_inj is the injected deviation at the source (0.24). The
+peak is used because the arrival time varies by seed; t_peak is
+reported alongside.
+
+### Pre-registered verdict rules (frozen before measuring)
+
+- (h) HEIGHT, width 2: mean T strictly decreases over heights
+  (0, 0.25, 0.5, 0.75, 0.9, 0.99), AND T(0.99)/T(0) ≤ 0.20.
+- (i) WIDTH, height 0.75: log(mean T) vs width 0..3 fits a line with
+  slope < −0.10 per link AND R² ≥ 0.90.
+- (j) GRADED, width 2: 0.20 < T(0.5)/T(0) < 0.80.
+- (k) WIDE, width 3: T(0.99)/T(0) ≤ 0.20.
+
+### Measured result — all four PASS
+
+Height sweep, width 2 (mean T over seeds 0..4):
+
+| h | mean T | per-seed T |
+|---|---|---|
+| 0 | 2.92e-05 | 4.06e-05, 4.05e-05, 1.15e-05, 3.96e-05, 1.39e-05 |
+| 0.25 | 1.68e-05 | 2.31e-05, 2.36e-05, 6.44e-06, 2.26e-05, 8.11e-06 |
+| 0.5 | 7.61e-06 | 1.04e-05, 1.09e-05, 2.85e-06, 1.02e-05, 3.74e-06 |
+| 0.75 | 1.95e-06 | 2.65e-06, 2.83e-06, 7.20e-07, 2.59e-06, 9.70e-07 |
+| 0.9 | 3.18e-07 | 4.34e-07, 4.66e-07, 1.16e-07, 4.18e-07, 1.59e-07 |
+| 0.99 | 3.27e-09 | 4.42e-09, 4.81e-09, 1.15e-09, 4.41e-09, 1.57e-09 |
+
+Strictly decreasing on the mean AND on every seed individually.
+T(0.99)/T(0) = 1.12e-04 — the nearly-closed barrier transmits
+about one ten-thousandth of the open chain. (h) PASSES by a wide
+margin (threshold 0.20).
+
+Width sweep, height 0.75 (mean T over seeds 0..4):
+
+| w | mean T |
+|---|---|
+| 0 | 2.92e-05 |
+| 1 | 7.61e-06 |
+| 2 | 1.95e-06 |
+| 3 | 5.05e-07 |
+
+Each added barrier link multiplies the transmission by ~0.26.
+The log-linear fit has slope −1.353 per link and R² = 0.999996.
+(i) PASSES: the falloff is exponential in width (tunneling-like),
+not linear and not a step. T(0.5)/T(0) = 0.260, inside (0.20,
+0.80), so (j) PASSES: the barrier is graded, not an on/off step.
+At width 3, T(0.99)/T(0) = 1.21e-06, so (k) PASSES — but note the
+wide-barrier point sits at the numerical floor (per-seed detector
+deviations 3e-12–1.2e-11), so its value is an upper bound on the
+true transmission; the verdict direction is conservative, since
+the true value can only be smaller.
+
+### The measured law, and what it does and does not mean
+
+The transmission factorises, to within 12% on every mean point,
+as T(h, w) = T(0) · (1 − h)^w: each barrier link contributes one
+factor (1 − h). The log-linear slope −1.353 at h = 0.75 is
+log(0.25) = −1.386 up to that few-percent drift, and the per-seed
+curves follow the same law. That factorisation is a direct
+consequence of the construction — the interaction drive is linear
+in the per-link coupling, so suppressing a link's coupling by
+(1 − h) suppresses what crosses it by (1 − h). The exponential
+shape is therefore a property of the designed rule, not a
+discovery about membranes, and it is not the quantum law
+(T ~ exp(−2κL) with κ ∝ √(V − E)): the exponent here is linear in
+log(1 − h), not in √(h). What the measurement establishes is that
+this lattice's interaction rule, arranged as a barrier, transmits
+like a leaky attenuator — exponentially in width, graded in height
+— and not like a classical wall. A diagnostic alongside: the
+arrival step t_peak never advances as the barrier strengthens or
+widens (seeds 0, 1, 3, 4: 97, 100, 95, 63 at every setting; seed 2:
+delayed 48 → 66). Structural checks: height 1.0 gives T = 0
+exactly (the chain is cut), and height 0 gives the same T for
+every width (the barrier is a no-op). All numbers were recomputed
+independently from the raw per-seed values with plain-Python
+arithmetic (means, ratios, closed-form log-linear fit); every
+figure above reproduces exactly.
+
+## 9. Honest limits
 
 1. **Classical emulation.** Everything here is NumPy on classical
    hardware. The lattice is NOT a superconductor; no Cooper pairs,
@@ -552,11 +665,24 @@ but it was never the shape of the curve.
    periodic, and its sine-part power fraction is 1.000 because the
    drive is odd.
 
-## 9. Reproduction
+10. **The tunneling chain is a restriction, and the barrier is
+    designed.** Claims (h)–(k) run on a 4-cell chain, not on the 3x3
+    lattice itself, at coupling 0.10 rather than the 0.02 default,
+    because the 3x3 graph has no chokepoint and the default coupling
+    puts the signal below the numerical floor. The barrier is a
+    designed per-link coupling suppression, not a discovered
+    potential. The exponential-in-width shape follows from the drive
+    being linear in the per-link coupling (measured: T = T(0)·(1−h)^w
+    to within 12%), and it is not the quantum tunneling law (the
+    exponent is linear in log(1−h), not in √h). The wide-barrier
+    point sits at the numerical floor (~1e-11 in detector deviation)
+    and is an upper bound. No physical junction is implied.
+
+## 10. Reproduction
 
 ```bash
 cd ~/workspace/josephson-membrane
-python3 -m pytest -q            # 66 tests, ~60 s
+python3 -m pytest -q            # 82 tests, ~5 min (tunneling ~90 s x2)
 PYTHONPATH=src python3 -m josephson_membrane.unified   # full claim as JSON
 ```
 
@@ -566,4 +692,6 @@ Lattice provenance is recorded by the measurement itself:
 Seeds 0..4, 64 phase points, identical and distinct cells, linear and
 binary generators. All numbers in this report come from that run.
 The harmonics test (claim g) uses a denser 256-point grid over the
-same seeds and setups.
+same seeds and setups. The tunneling measurement (claims h–k) uses
+the same lattice tree and seeds on a 4-cell chain, coupling 0.10,
+100 steps.

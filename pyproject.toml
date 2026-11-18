@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "josephson-membrane"
-version = "0.2.1"
+version = "0.3.0"
 description = "Josephson laws (DC, AC, SQUID) measured against the membrane-arena-3x3 lattice phase response (stdlib + NumPy, synthetic only)"
 readme = "README.md"
 requires-python = ">=3.10"

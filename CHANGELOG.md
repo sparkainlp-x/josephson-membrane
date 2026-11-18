@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.3.0 — 2026-11-18
+
+- `tunneling.py` (new): transmission-vs-barrier measurement, claims
+  (h)–(k). The question: does the fraction of an injected membrane
+  disturbance that reaches a detector across a barrier fall
+  exponentially with barrier width/height (tunneling-like) or
+  linearly / as a step (classical blocking)? The 3x3 lattice's
+  neighbour graph is dense (row + column), so no region can choke
+  the flow; the experiment runs on a 4-cell chain of the REAL
+  lattice — states, Hamiltonians, config and every evolution stage
+  are the lattice's own, the interaction term is the lattice's own
+  pairwise formula, only the neighbour graph is a chain and the
+  coupling is per-link. Two apparatus choices were fixed in the
+  pilot phase, before measuring: coupling 0.10 (top of the lattice's
+  validated range) instead of the 0.02 default, and a 4-cell chain —
+  at the default the per-link attenuation is ~200x and the signal is
+  below the numerical floor (~1e-11 in detector deviation) by the
+  detector, so no barrier shape is measurable at all. All four
+  claims are ratios/shapes with thresholds frozen before measuring,
+  and all four PASS, mean over seeds 0..4: (h) height — strictly
+  decreasing, T(0.99)/T(0) = 1.12e-04 (max 0.20); (i) width —
+  log-linear slope −1.353 per link (max −0.10), R² = 0.999996 (min
+  0.90); (j) graded — T(0.5)/T(0) = 0.260, inside (0.20, 0.80);
+  (k) wide barrier — T(0.99, w=3)/T(0) = 1.21e-06 (max 0.20).
+  Measured law: T(h, w) = T(0)·(1−h)^w to within 12% on every mean
+  point — the exponential shape follows from the drive being linear
+  in the per-link coupling, a property of the designed rule, not a
+  discovery and not the quantum tunneling law (exponent linear in
+  log(1−h), not in √h). The wide-barrier point sits at the numerical
+  floor and is an upper bound. Structural checks: height 1.0 gives
+  T = 0 exactly; height 0 gives the same T for every width. 82/82
+  tests (66 old + 16 new). Overall 8 of 10 verdicts pass (a–c, g–k).
+  headline_allowed stays False.
+- Version bumped to 0.3.0 in VERSION, pyproject.toml,
+  `__init__.__version__`, CITATION.cff and .zenodo.json. No new DOI
+  invented; the v0.3.0 version DOI comes from Jean's Zenodo release.
+
 ## 0.2.1 — 2026-11-16
 
 - `harmonics.py` (new): Fourier harmonics test, claim (g). The

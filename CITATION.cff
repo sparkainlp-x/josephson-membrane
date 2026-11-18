@@ -7,8 +7,8 @@ authors:
     given-names: "Jean-François"
     orcid: "https://orcid.org/0009-0000-9778-5374"
     affiliation: "Spark AI NLP, Fredericton, New Brunswick, Canada"
-version: 0.2.1
-date-released: "2026-11-16"
+version: 0.3.0
+date-released: "2026-11-18"
 license: AGPL-3.0-only
 abstract: >-
   SYNTHETIC. Standard-library Python plus NumPy: the Josephson laws
@@ -33,7 +33,17 @@ abstract: >-
   generator): the variant flow is INCOHERENT, not hiding a dominant
   harmonic -- peak bin 7.3% of power, top-3 bins 16.8%, 84% of the
   power spread above the 3rd harmonic; the binary/distinct control
-  is a single sine (p1 = 1.0000). No headline claim is emitted.
+  is a single sine (p1 = 1.0000). v0.3.0 adds the tunneling measurement
+  (claims (h)-(k)): transmission across a barrier in a 4-cell chain of
+  the real lattice falls with barrier height (strictly decreasing;
+  T(0.99)/T(0) = 1.12e-04) and exponentially with barrier width
+  (log-linear slope -1.353 per link, R^2 = 0.999996), graded not a step
+  (T(0.5)/T(0) = 0.260); the suppression holds for the widest barrier
+  (T(0.99, w=3)/T(0) = 1.21e-06). Eleven statements: eight pass, two
+  fail, one measured without a verdict. The chain is a restriction of
+  the lattice and the barrier a designed coupling suppression; the
+  exponential shape follows from the drive being linear in the
+  per-link coupling. No headline claim is emitted.
 keywords:
   - "josephson-effect"
   - "josephson-junction"
@@ -45,3 +55,6 @@ keywords:
   - "membrane"
   - "synthetic"
   - "python"
+  - "tunneling"
+  - "transmission"
+  - "barrier"

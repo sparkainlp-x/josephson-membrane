@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
 
-"""Tests for the unified claim (unified.py): seven statements (six
+"""Tests for the unified claim (unified.py): eleven statements (ten
 verdicts), no headline; the membrane verdict is FAIL with the measured
 numbers; the odd variant FAILS on its primary setup but PASSES for
 binary/distinct; the ramp carries no verdict; the harmonics test
-passes -- the failing corner is incoherent, not hiding a harmonic."""
+passes -- the failing corner is incoherent, not hiding a harmonic;
+the four tunneling claims pass -- transmission falls with barrier
+height and exponentially with barrier width, graded not a step."""
 
 import math
 
@@ -20,12 +22,14 @@ def result():
 
 
 def test_unified_structure(result):
-    assert result["n_claims"] == 6
-    assert result["n_passed"] == 4
+    assert result["n_claims"] == 10
+    assert result["n_passed"] == 8
     assert result["overall_pass"] is False
     assert result["headline_allowed"] is False
     assert HEADLINE_ALLOWED is False
-    assert [c["id"] for c in result["claims"]] == ["a", "b", "c", "d", "e", "f", "g"]
+    assert [c["id"] for c in result["claims"]] == [
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
+    ]
 
 
 def test_law_claims_pass(result):
@@ -148,3 +152,26 @@ def test_harmonics_claim_passes_failing_corner_is_incoherent(result):
     assert claim["control_single_sine_p1"] > 0.99
     assert claim["shuffled_verdict"] == "incoherent"
     assert all(claim["checks"].values())
+
+
+def test_tunneling_claims_pass(result):
+    # Claims (h)-(k): transmission across a barrier in a 4-cell chain
+    # of the real lattice. Height: strictly decreasing, T(0.99)/T(0)
+    # = 1.12e-04. Width: log-linear slope -1.353 per link, R^2 =
+    # 0.999996. Graded: T(0.5)/T(0) = 0.260. Wide barrier:
+    # T(0.99, w=3)/T(0) = 1.21e-06.
+    by_id = {c["id"]: c for c in result["claims"]}
+    h = by_id["h"]
+    assert h["passed"] is True
+    assert h["verdict"]["monotone_decreasing"] is True
+    assert h["verdict"]["suppression_ratio"] == pytest.approx(1.12e-04, rel=0.05)
+    i = by_id["i"]
+    assert i["passed"] is True
+    assert i["verdict"]["log_linear_fit"]["slope"] == pytest.approx(-1.353, abs=0.01)
+    assert i["verdict"]["log_linear_fit"]["r2"] > 0.999
+    j = by_id["j"]
+    assert j["passed"] is True
+    assert j["verdict"]["graded_ratio"] == pytest.approx(0.260, abs=0.01)
+    k = by_id["k"]
+    assert k["passed"] is True
+    assert k["verdict"]["suppression_ratio"] == pytest.approx(1.21e-06, rel=0.05)

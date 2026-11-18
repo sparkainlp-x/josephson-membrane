@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (c) 2026 Jean-Francois Brisson (Spark AI NLP)
 
-"""Unified claim: seven statements, measured, no headline.
+"""Unified claim: eleven statements, measured, no headline.
 
 (a) DC law reproduces the cardinal table exactly: I_s = 0 at
     delta_phi = 0, pi, 2*pi; +I_c at pi/2; -I_c at 3*pi/2.
@@ -31,6 +31,19 @@
     is about the TEST's discriminating power: it passes iff the
     failing corner gets a definite verdict, the binary/distinct
     control is a single sine, and the shuffled control is incoherent.
+(h) Tunneling height (tunneling.py): transmission across a barrier
+    in a 4-cell chain of the real lattice, mean over seeds 0..4,
+    strictly decreases with barrier height at width 2, and
+    T(0.99)/T(0) <= 0.20.
+(i) Tunneling width (tunneling.py): at height 0.75, log(mean T)
+    against width 0..3 is linear with slope < -0.10 per link and
+    R^2 >= 0.90 -- exponential (tunneling-like) falloff.
+(j) Tunneling graded (tunneling.py): at width 2, the intermediate
+    height transmits an intermediate fraction,
+    0.20 < T(0.5)/T(0) < 0.80 -- graded, not an on/off step.
+(k) Tunneling wide barrier (tunneling.py): at width 3,
+    T(0.99)/T(0) <= 0.20 -- the height suppression also holds for
+    the widest barrier.
 
 These are measurements on synthetic classical code plus exact
 evaluations of established laws. They are not a proof about physical
@@ -53,6 +66,7 @@ from .josephson import (
 )
 from .membrane_phase import run_membrane_experiment
 from .odd_phase import run_odd_experiment, run_ramp_experiment
+from .tunneling import run_tunneling_experiment
 
 HEADLINE_ALLOWED = False
 
@@ -294,8 +308,114 @@ def claim_harmonics() -> dict:
     }
 
 
+# The tunneling experiment takes ~90 s; the four tunneling claims
+# share one run. The experiment is deterministic (fixed seeds), so
+# memoizing it changes no number.
+_tunneling_exp_cache: dict | None = None
+
+
+def _tunneling_experiment() -> dict:
+    global _tunneling_exp_cache
+    if _tunneling_exp_cache is None:
+        _tunneling_exp_cache = run_tunneling_experiment()
+    return _tunneling_exp_cache
+
+
+def claim_tunneling_height() -> dict:
+    """(h) Tunneling: transmission falls with barrier height."""
+    exp = _tunneling_experiment()
+    verdict = exp["verdicts"]["h"]
+    return {
+        "id": "h",
+        "name": "Tunneling: transmission vs barrier height",
+        "setup": (
+            "4-cell chain of the real lattice, coupling 0.10, 100 steps, "
+            "width 2, mean over seeds 0..4"
+        ),
+        "height_sweep": [
+            {"height": row["height"],
+             "mean_transmission": row["mean_transmission"],
+             "per_seed_transmission": row["per_seed_transmission"],
+             "per_seed_t_peak": row["per_seed_t_peak"]}
+            for row in exp["height_sweep"]
+        ],
+        "verdict": verdict,
+        "verdict_rule": exp["verdict_rule"],
+        "provenance": exp["provenance"],
+        "passed": bool(verdict["passed"]),
+    }
+
+
+def claim_tunneling_width() -> dict:
+    """(i) Tunneling: transmission falls exponentially with width."""
+    exp = _tunneling_experiment()
+    verdict = exp["verdicts"]["i"]
+    return {
+        "id": "i",
+        "name": "Tunneling: transmission vs barrier width",
+        "setup": (
+            "4-cell chain of the real lattice, coupling 0.10, 100 steps, "
+            "height 0.75, mean over seeds 0..4"
+        ),
+        "width_sweep": [
+            {"width": row["width"],
+             "mean_transmission": row["mean_transmission"],
+             "per_seed_transmission": row["per_seed_transmission"],
+             "per_seed_t_peak": row["per_seed_t_peak"]}
+            for row in exp["width_sweep"]
+        ],
+        "verdict": verdict,
+        "verdict_rule": exp["verdict_rule"],
+        "provenance": exp["provenance"],
+        "passed": bool(verdict["passed"]),
+    }
+
+
+def claim_tunneling_graded() -> dict:
+    """(j) Tunneling: intermediate height, intermediate transmission."""
+    exp = _tunneling_experiment()
+    verdict = exp["verdicts"]["j"]
+    return {
+        "id": "j",
+        "name": "Tunneling: graded, not a step",
+        "setup": (
+            "4-cell chain of the real lattice, coupling 0.10, 100 steps, "
+            "width 2, mean over seeds 0..4"
+        ),
+        "height_sweep": [
+            {"height": row["height"],
+             "mean_transmission": row["mean_transmission"]}
+            for row in exp["height_sweep"]
+        ],
+        "verdict": verdict,
+        "verdict_rule": exp["verdict_rule"],
+        "provenance": exp["provenance"],
+        "passed": bool(verdict["passed"]),
+    }
+
+
+def claim_tunneling_wide() -> dict:
+    """(k) Tunneling: suppression holds for the widest barrier."""
+    exp = _tunneling_experiment()
+    verdict = exp["verdicts"]["k"]
+    return {
+        "id": "k",
+        "name": "Tunneling: wide-barrier suppression",
+        "setup": (
+            "4-cell chain of the real lattice, coupling 0.10, 100 steps, "
+            "width 3, height 0.99, mean over seeds 0..4"
+        ),
+        "wide_barrier": exp["wide_barrier"],
+        "open_transmission": exp["height_sweep"][0]["mean_transmission"],
+        "verdict": verdict,
+        "verdict_rule": exp["verdict_rule"],
+        "provenance": exp["provenance"],
+        "passed": bool(verdict["passed"]),
+    }
+
+
 def unified_claim() -> dict:
-    """Run all seven statements; return measured numbers, no headline."""
+    """Run all eleven statements; return measured numbers, no headline."""
     claims = [
         claim_dc_law(),
         claim_ac_frequency(),
@@ -304,6 +424,10 @@ def unified_claim() -> dict:
         claim_odd_phase(),
         claim_phase_ramp(),
         claim_harmonics(),
+        claim_tunneling_height(),
+        claim_tunneling_width(),
+        claim_tunneling_graded(),
+        claim_tunneling_wide(),
     ]
     verdicts = [c for c in claims if c["passed"] is not None]
     return {
